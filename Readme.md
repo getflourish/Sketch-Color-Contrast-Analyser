@@ -1,6 +1,6 @@
 # Color Contrast Analyser for Sketch
 
-A Sketch plugin that calculates the color contrast of two selected layers and evaluates it against the WCAG. The test may pass AAA, AA or fail the test because of a lack of contrast. This might help you when designing with accessibility requirements.
+A Sketch plugin that calculates the color contrast of two selected layers and evaluates it against the WCAG. The test may pass AAA, AA or fail the test because of a lack of contrast. This might help you design accessible content.
 
 ![Screenshot](https://dl.dropboxusercontent.com/u/974773/_keepalive/Sketch-Color-Contrast.png)
 
