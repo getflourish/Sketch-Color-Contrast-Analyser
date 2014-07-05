@@ -97,13 +97,20 @@ if (L2B <= 0.03928) {
 	L2B = Math.pow(((L2B + 0.055)/1.055), 2.4)
 }
 
-var L1 = 0.2126 * L1R + 0.7152 * L1B + 0.0722 * L1B;
+var L1 = 0.2126 * L1R + 0.7152 * L1G + 0.0722 * L1B;
 var L2 = 0.2126 * L2R + 0.7152 * L2G + 0.0722 * L2B;
 
+// Make sure L1 is the lighter color
+if (L1 <= L2) {
+	var temp = L2;
+	L2 = L1;
+	L1 = temp;
+}
+
+// Calculate contrast
+cr = ((L1 + 0.05) / (L2 + 0.05)).toFixed(1);
+
 // Check against AA / AAA
-
-cr = ((L1 + 0.05) / (L2 + 0.05)).toFixed(2);
-
 var result = "AA Failed";
 
 var fontSize = 14;
