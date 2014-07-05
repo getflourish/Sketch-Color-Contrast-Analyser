@@ -116,12 +116,12 @@ if (textLayer != null) {
 		var isBold = true;
 	}
 }
-if ((fontSize > 18 || (fontSize >= 14 && isBold)) && cr >=3) result = "AA passed (large scale)"
+if ((fontSize > 18 || (fontSize >= 14 && isBold)) && cr >=3) result = "AA passed (large text)"
 if(cr >= 4.5) result = "AA passed"
 
-if ((fontSize > 18 || (fontSize >= 14 && isBold)) && cr >=4.5) result = "AAA passed (large scale)"
+if ((fontSize > 18 || (fontSize >= 14 && isBold)) && cr >=4.5) result = "AAA passed (large text)"
 if(cr >= 7.0) result = "AAA passed"
 
 // Show Dialog
 var app = [NSApplication sharedApplication];
-[app displayDialog:"Color contrast: " + cr withTitle: result]
+[app displayDialog:"Color contrast: " + cr + ":1" withTitle: result]
