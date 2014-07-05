@@ -1,0 +1,127 @@
+// Calculates the color contrast of two layers 
+// Read more about the Web Content Accessibility Guidelines 2.0 
+// http://www.w3.org/WAI/WCAG20/quickref/#qr-visual-audio-contrast-contrast
+
+// Based on these algorithms: http://gmazzocato.altervista.org/colorwheel/algo.php
+// —————————————————————————————————————————
+
+// This plugin expects a selection of exactly two layers
+
+var layerA = selection[0]
+var layerB = selection[1]
+
+// Reference to the text layer if there is any
+var textLayer = null;
+
+// We need to test whether the layers are text layers or not to get the correct color.
+switch ([layerA class]) {
+  case MSTextLayer:
+
+    var color1 = layerA.textColor();
+	textLayer = layerA;
+
+	// todo: should check whether the fill is active
+
+	var fill1 = layerA.style().fills().firstObject();
+	if (fill1 != undefined && fill1.isEnabled()) color1 = fill1.color();
+
+    break
+  default:
+    var fill1 = layerA.style().fills().firstObject();
+	var color1 = fill1.color();
+    break
+}
+
+switch ([layerB class]) {
+  case MSTextLayer:
+
+    var color2 = layerB.textColor();
+	textLayer = layerB;
+
+	// Check if text layer has a fill color
+
+	var fill2 = layerB.style().fills().firstObject();
+	if (fill2 != undefined && fill2.isEnabled()) color2 = fill2.color();
+
+    break
+  default:
+    var fill2 = layerB.style().fills().firstObject();
+	var color2 = fill2.color();
+    break
+}
+
+
+// Color 1
+
+L1R = color1.red();
+if (L1R <= 0.03928) {
+	L1R = color1.red() / 12.92;
+} else {
+	L1R = Math.pow(((L1R + 0.055)/1.055), 2.4)
+}
+
+L1G = color1.green();
+if (L1G <= 0.03928) {
+	L1G = color1.green() / 12.92;
+} else {
+	L1G = Math.pow(((L1G + 0.055)/1.055), 2.4)
+}
+
+L1B = color1.blue();
+if (L1B <= 0.03928) {
+	L1B = color1.blue() / 12.92;
+} else {
+	L1B = Math.pow(((L1B + 0.055)/1.055), 2.4)
+}
+
+// Color 2
+
+L2R = color2.red();
+if (L2R <= 0.03928) {
+	L2R = color2.red() / 12.92;
+} else {
+	L2R = Math.pow(((L2R + 0.055)/1.055), 2.4)
+}
+
+L2G = color2.green();
+if (L2G <= 0.03928) {
+	L2G = color2.green() / 12.92;
+} else {
+	L2G = Math.pow(((L2G + 0.055)/1.055), 2.4)
+}
+
+L2B = color2.blue();
+if (L2B <= 0.03928) {
+	L2B = color2.blue() / 12.92;
+} else {
+	L2B = Math.pow(((L2B + 0.055)/1.055), 2.4)
+}
+
+var L1 = 0.2126 * L1R + 0.7152 * L1B + 0.0722 * L1B;
+var L2 = 0.2126 * L2R + 0.7152 * L2G + 0.0722 * L2B;
+
+// Check against AA / AAA
+
+cr = ((L1 + 0.05) / (L2 + 0.05)).toFixed(2);
+
+var result = "AA Failed";
+
+var fontSize = 14;
+
+if (textLayer != null) {
+	var fontSize = textLayer.fontSize();
+	var isBold = false;
+
+	if (textLayer.fontPostscriptName().indexOf("Bold") != -1) {
+		var isBold = true;
+	}
+}
+if ((fontSize > 18 || (fontSize >= 14 && isBold)) && cr >=3) result = "AA passed (large scale)"
+if(cr >= 4.5) result = "AA passed"
+
+if ((fontSize > 18 || (fontSize >= 14 && isBold)) && cr >=4.5) result = "AAA passed (large scale)"
+if(cr >= 7.0) result = "AAA passed"
+
+// Show Dialog
+var app = [NSApplication sharedApplication];
+[app displayDialog:"Color contrast: " + cr withTitle: result]
