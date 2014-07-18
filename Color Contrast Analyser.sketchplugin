@@ -5,110 +5,128 @@
 // Based on these algorithms: http://gmazzocato.altervista.org/colorwheel/algo.php
 // —————————————————————————————————————————
 
-// This plugin expects a selection of exactly two layers
+// This plugin expects a selection of two layers or a single layer that will be checked against the artboard’s background color
 
-var layerA = selection[0]
-var layerB = selection[1]
 
 // Reference to the text layer if there is any
 var textLayer = null;
+var cr = 0;
+var app = [NSApplication sharedApplication];
 
-// We need to test whether the layers are text layers or not to get the correct color.
-switch ([layerA class]) {
-  case MSTextLayer:
+switch (selection.count()) {
+	case 0:
+		[app displayDialog:"Please select one or two layers." withTitle: "Color Contrast Analyser"]
+	break;
 
-    var color1 = layerA.textColor();
-	textLayer = layerA;
+	case 1:
+		var layer1 = selection[0];
+		var color1 = getColorOf(layer1);
 
-	// todo: should check whether the fill is active
+		// Get Artboard background color
+		var artboard = [[[doc currentPage] artboards] firstObject];
+		var fill = [[[artboard style] fills] firstObject];
+		var color2 = fill.color();
 
-	var fill1 = layerA.style().fills().firstObject();
-	if (fill1 != undefined && fill1.isEnabled()) color1 = fill1.color();
+		cr = getColorContrastOf(color1, color2);
 
-    break
-  default:
-    var fill1 = layerA.style().fills().firstObject();
-	var color1 = fill1.color();
-    break
-}
+	break;
 
-switch ([layerB class]) {
-  case MSTextLayer:
+	case 2:
+		var layer1 = selection[0];
+		var layer2 = selection[1];
+		var color1 = getColorOf(layer1);
+		var color2 = getColorOf(layer2);
 
-    var color2 = layerB.textColor();
-	textLayer = layerB;
-
-	// Check if text layer has a fill color
-
-	var fill2 = layerB.style().fills().firstObject();
-	if (fill2 != undefined && fill2.isEnabled()) color2 = fill2.color();
-
-    break
-  default:
-    var fill2 = layerB.style().fills().firstObject();
-	var color2 = fill2.color();
-    break
+		cr = getColorContrastOf(color1, color2);
+	break;
 }
 
 
-// Color 1
+function getColorOf(layer) {
+	var color = null;
+	switch ([layer class]) {
+		case MSTextLayer:
+	    	color = layer.textColor();
+			textLayer = layer;
 
-L1R = color1.red();
-if (L1R <= 0.03928) {
-	L1R = color1.red() / 12.92;
-} else {
-	L1R = Math.pow(((L1R + 0.055)/1.055), 2.4)
+			// Check if text layer has a fill color
+
+			var fill = layer.style().fills().firstObject();
+			if (fill != undefined && fill.isEnabled()) color = fill.color();
+		break;
+	  	default:
+	    	var fill = layer.style().fills().firstObject();
+			color = fill.color();
+	    break;
+	}
+	return color;
 }
 
-L1G = color1.green();
-if (L1G <= 0.03928) {
-	L1G = color1.green() / 12.92;
-} else {
-	L1G = Math.pow(((L1G + 0.055)/1.055), 2.4)
+function getColorContrastOf(color1, color2) {
+
+	// Color 1
+
+	L1R = color1.red();
+	if (L1R <= 0.03928) {
+		L1R = color1.red() / 12.92;
+	} else {
+		L1R = Math.pow(((L1R + 0.055)/1.055), 2.4)
+	}
+
+	L1G = color1.green();
+	if (L1G <= 0.03928) {
+		L1G = color1.green() / 12.92;
+	} else {
+		L1G = Math.pow(((L1G + 0.055)/1.055), 2.4)
+	}
+
+	L1B = color1.blue();
+	if (L1B <= 0.03928) {
+		L1B = color1.blue() / 12.92;
+	} else {
+		L1B = Math.pow(((L1B + 0.055)/1.055), 2.4)
+	}
+
+	// Color 2
+
+	L2R = color2.red();
+	if (L2R <= 0.03928) {
+		L2R = color2.red() / 12.92;
+	} else {
+		L2R = Math.pow(((L2R + 0.055)/1.055), 2.4)
+	}
+
+	L2G = color2.green();
+	if (L2G <= 0.03928) {
+		L2G = color2.green() / 12.92;
+	} else {
+		L2G = Math.pow(((L2G + 0.055)/1.055), 2.4)
+	}
+
+	L2B = color2.blue();
+	if (L2B <= 0.03928) {
+		L2B = color2.blue() / 12.92;
+	} else {
+		L2B = Math.pow(((L2B + 0.055)/1.055), 2.4)
+	}
+
+	var L1 = 0.2126 * L1R + 0.7152 * L1G + 0.0722 * L1B;
+	var L2 = 0.2126 * L2R + 0.7152 * L2G + 0.0722 * L2B;
+
+	// Make sure L1 is the lighter color
+
+	if (L1 <= L2) {
+		var temp = L2;
+		L2 = L1;
+		L1 = temp;
+	}
+
+	// Calculate contrast
+
+	cr = ((L1 + 0.05) / (L2 + 0.05)).toFixed(1);
+
+	return cr;
 }
-
-L1B = color1.blue();
-if (L1B <= 0.03928) {
-	L1B = color1.blue() / 12.92;
-} else {
-	L1B = Math.pow(((L1B + 0.055)/1.055), 2.4)
-}
-
-// Color 2
-
-L2R = color2.red();
-if (L2R <= 0.03928) {
-	L2R = color2.red() / 12.92;
-} else {
-	L2R = Math.pow(((L2R + 0.055)/1.055), 2.4)
-}
-
-L2G = color2.green();
-if (L2G <= 0.03928) {
-	L2G = color2.green() / 12.92;
-} else {
-	L2G = Math.pow(((L2G + 0.055)/1.055), 2.4)
-}
-
-L2B = color2.blue();
-if (L2B <= 0.03928) {
-	L2B = color2.blue() / 12.92;
-} else {
-	L2B = Math.pow(((L2B + 0.055)/1.055), 2.4)
-}
-
-var L1 = 0.2126 * L1R + 0.7152 * L1G + 0.0722 * L1B;
-var L2 = 0.2126 * L2R + 0.7152 * L2G + 0.0722 * L2B;
-
-// Make sure L1 is the lighter color
-if (L1 <= L2) {
-	var temp = L2;
-	L2 = L1;
-	L1 = temp;
-}
-
-// Calculate contrast
-cr = ((L1 + 0.05) / (L2 + 0.05)).toFixed(1);
 
 // Check against AA / AAA
 var result = "AA Failed";
@@ -130,5 +148,4 @@ if ((fontSize > 18 || (fontSize >= 14 && isBold)) && cr >=4.5) result = "AAA pas
 if(cr >= 7.0) result = "AAA passed"
 
 // Show Dialog
-var app = [NSApplication sharedApplication];
 [app displayDialog:"Color contrast: " + cr + ":1" withTitle: result]
