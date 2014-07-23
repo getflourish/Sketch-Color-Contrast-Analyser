@@ -26,9 +26,11 @@ switch (selection.count()) {
 		// Get Artboard background color
 
 		if ([[doc currentPage] currentArtboard] != null) {
+	
 			color2 = [[[doc currentPage] currentArtboard] backgroundColor];
+
 			var cr = getColorContrastOf(color1, color2);
-			showResult();
+			showResult(cr);
 		} else {
 			[app displayDialog:"This plugin requires a single layer on an artboard or two selected layers to work." withTitle: "Color Contrast Analyser"]
 		}
