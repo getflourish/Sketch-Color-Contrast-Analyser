@@ -10,7 +10,8 @@
 
 // Reference to the text layer if there is any
 var textLayer = null;
-var cr = 0;
+
+// Setup
 var app = [NSApplication sharedApplication];
 
 switch (selection.count()) {
@@ -23,21 +24,27 @@ switch (selection.count()) {
 		var color1 = getColorOf(layer1);
 
 		// Get Artboard background color
-		var artboard = [[[doc currentPage] artboards] firstObject];
-		var fill = [[[artboard style] fills] firstObject];
-		var color2 = fill.color();
 
-		cr = getColorContrastOf(color1, color2);
+		if ([[doc currentPage] currentArtboard] != null) {
+			color2 = [[[doc currentPage] currentArtboard] backgroundColor];
+			var cr = getColorContrastOf(color1, color2);
+			showResult();
+		} else {
+			[app displayDialog:"This plugin requires a single layer on an artboard or two selected layers to work." withTitle: "Color Contrast Analyser"]
+		}
 
 	break;
 
 	case 2:
 		var layer1 = selection[0];
 		var layer2 = selection[1];
+
 		var color1 = getColorOf(layer1);
 		var color2 = getColorOf(layer2);
 
-		cr = getColorContrastOf(color1, color2);
+		var cr = getColorContrastOf(color1, color2);
+
+		showResult(cr);
 	break;
 }
 
@@ -128,24 +135,26 @@ function getColorContrastOf(color1, color2) {
 	return cr;
 }
 
-// Check against AA / AAA
-var result = "AA Failed";
+function showResult (cr) {
+	// Check against AA / AAA
+	var result = "AA Failed";
 
-var fontSize = 14;
+	var fontSize = 14;
 
-if (textLayer != null) {
-	var fontSize = textLayer.fontSize();
-	var isBold = false;
+	if (textLayer != null) {
+		var fontSize = textLayer.fontSize();
+		var isBold = false;
 
-	if (textLayer.fontPostscriptName().indexOf("Bold") != -1) {
-		var isBold = true;
+		if (textLayer.fontPostscriptName().indexOf("Bold") != -1) {
+			var isBold = true;
+		}
 	}
+	if ((fontSize > 18 || (fontSize >= 14 && isBold)) && cr >=3) result = "AA passed (large text)"
+	if(cr >= 4.5) result = "AA passed"
+
+	if ((fontSize > 18 || (fontSize >= 14 && isBold)) && cr >=4.5) result = "AAA passed (large text)"
+	if(cr >= 7.0) result = "AAA passed"
+
+	// Show Dialog
+	[app displayDialog:"Color contrast: " + cr + ":1" withTitle: result]
 }
-if ((fontSize > 18 || (fontSize >= 14 && isBold)) && cr >=3) result = "AA passed (large text)"
-if(cr >= 4.5) result = "AA passed"
-
-if ((fontSize > 18 || (fontSize >= 14 && isBold)) && cr >=4.5) result = "AAA passed (large text)"
-if(cr >= 7.0) result = "AAA passed"
-
-// Show Dialog
-[app displayDialog:"Color contrast: " + cr + ":1" withTitle: result]
