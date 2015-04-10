@@ -157,6 +157,6 @@ function showResult (cr) {
 	if ((fontSize > 18 || (fontSize >= 14 && isBold)) && cr >=4.5) result = "AAA passed (large text)"
 	if(cr >= 7.0) result = "AAA passed"
 
-	// Show Dialog
-	[app displayDialog:"Color contrast: " + cr + ":1" withTitle: result]
+	// Show ratio
+	[doc showMessage:result + " - " + cr + ":1"]
 }
