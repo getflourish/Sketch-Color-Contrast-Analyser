@@ -9,66 +9,73 @@
 
 
 // Reference to the text layer if there is any
-var textLayer = null;
+var textLayer = null; 
+var doc = null;
 
-// Setup
-var app = [NSApplication sharedApplication];
+var onRun = function(context) {  
+	doc = context.document;
+  	var selection = context.selection; 
+  	var page = doc.currentPage(); 
 
-switch (selection.count()) {
-	case 0:
-		[app displayDialog:"Please select one or two layers." withTitle: "Color Contrast Analyser"]
-	break;
+	// Setup
+	var app = NSApplication.sharedApplication();
 
-	case 1:
-		var layer1 = selection[0];
-		var color1 = getColorOf(layer1);
+	switch (selection.count()) {
+		case 0:
+			app.displayDialog_withTitle("Please select one or two layers.", "Color Contrast Analyser");
+		break;
 
-		// Get Artboard background color
+		case 1:
+			var layer1 = selection[0];
+			var color1 = getColorOf(layer1);
 
-		if ([[doc currentPage] currentArtboard] != null) {
+			// Get Artboard background color
+
+			if (page.currentArtboard() != null) {
 	
-			color2 = [[[doc currentPage] currentArtboard] backgroundColor];
+				color2 = page.currentArtboard().backgroundColor();
+
+				var cr = getColorContrastOf(color1, color2);
+				showResult(cr);
+			} else {
+				app.displayDialog_withTitle("This plugin requires a single layer on an artboard or two selected layers to work.", "Color Contrast Analyser");
+			}
+
+		break;
+
+		case 2:
+			var layer1 = selection[0];
+			var layer2 = selection[1];
+
+			var color1 = getColorOf(layer1);
+			var color2 = getColorOf(layer2);
 
 			var cr = getColorContrastOf(color1, color2);
+
 			showResult(cr);
-		} else {
-			[app displayDialog:"This plugin requires a single layer on an artboard or two selected layers to work." withTitle: "Color Contrast Analyser"]
-		}
-
-	break;
-
-	case 2:
-		var layer1 = selection[0];
-		var layer2 = selection[1];
-
-		var color1 = getColorOf(layer1);
-		var color2 = getColorOf(layer2);
-
-		var cr = getColorContrastOf(color1, color2);
-
-		showResult(cr);
-	break;
-}
-
-
-function getColorOf(layer) {
-	var color = null;
-	switch ([layer class]) {
-		case MSTextLayer:
-	    	color = layer.textColor();
-			textLayer = layer;
-
-			// Check if text layer has a fill color
-
-			var fill = layer.style().fills().firstObject();
-			if (fill != undefined && fill.isEnabled()) color = fill.color();
 		break;
-	  	default:
-	    	var fill = layer.style().fills().firstObject();
-			color = fill.color();
-	    break;
 	}
-	return color;
+
+
+	function getColorOf(layer) {
+		var color = null;
+		switch ([layer class]) {
+			case MSTextLayer:
+		    	color = layer.textColor();
+				textLayer = layer;
+
+				// Check if text layer has a fill color
+
+				var fill = layer.style().fills().firstObject();
+				if (fill != undefined && fill.isEnabled()) color = fill.color();
+			break;
+		  	default:
+		    	var fill = layer.style().fills().firstObject();
+				color = fill.color();
+		    break;
+		}
+		return color;
+	}
 }
 
 function getColorContrastOf(color1, color2) {
@@ -139,7 +146,7 @@ function getColorContrastOf(color1, color2) {
 
 function showResult (cr) {
 	// Check against AA / AAA
-	var result = "AA Failed";
+	var result = "❌ AA Failed";
 
 	var fontSize = 14;
 
@@ -151,12 +158,13 @@ function showResult (cr) {
 			var isBold = true;
 		}
 	}
-	if ((fontSize > 18 || (fontSize >= 14 && isBold)) && cr >=3) result = "AA passed (large text)"
-	if(cr >= 4.5) result = "AA passed"
+	if ((fontSize >= 18 || (fontSize >= 14 && isBold)) && cr >=3) result = "✅ AA passed (large text)"
+	if(cr >= 4.5) result = "✅ AA passed"
 
-	if ((fontSize > 18 || (fontSize >= 14 && isBold)) && cr >=4.5) result = "AAA passed (large text)"
-	if(cr >= 7.0) result = "AAA passed"
+	if ((fontSize >= 18 || (fontSize >= 14 && isBold)) && cr >=4.5) result = "✅ AAA passed (large text)"
+	if(cr >= 7.0) result = "✅ AAA passed"
 
 	// Show ratio
-	[doc showMessage:result + " - " + cr + ":1"]
+	doc.showMessage(result + " - " + cr + ":1");
+
 }
