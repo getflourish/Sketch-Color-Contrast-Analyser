@@ -6,7 +6,7 @@ Update: Also works with single layers that are now checked against the artboard 
 
 Note: This plugin works with solid text and fill colors. Transparency is not supported yet.
 
-![Screenshot](https://dl.dropboxusercontent.com/u/974773/_keepalive/Sketch-Color-Contrast.png)
+<img src="./Sketch-Color-Contrast.png" width="450px" alt="Sketch Color Contrast"" />
 
 ### AA requirements
 Color contrast of **4.5:1** or **3.0:1 for large text**
