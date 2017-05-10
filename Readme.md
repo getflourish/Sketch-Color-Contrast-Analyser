@@ -10,7 +10,7 @@ Color contrast of **4.5:1** or **3.0:1 for large text**
 ### AAA requirements
 Color contrast of **7.0:1** or **4.5:1 for large text**.
 
-##Notes
+## Notes
 - **Large text** means a font size of at least 18pt regular or 14pt bold. [Further details can be found in the Web Content Accessibility Guidelines 2.0.](http://www.w3.org/WAI/WCAG20/quickref/#qr-visual-audio-contrast-contrast)
 - This plugin works with solid text and fill colors. Transparency is not supported yet. 
 - Calculations are based on [these color contrast algorithms.](http://gmazzocato.altervista.org/colorwheel/algo.php)
