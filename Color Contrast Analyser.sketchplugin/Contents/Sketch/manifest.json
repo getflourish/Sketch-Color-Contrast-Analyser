@@ -4,7 +4,8 @@
   "version" : "1.1",
   "description" : "A plugin that calculates the color contrast of two layers and evaluates it against the WCAG.",
   "author" : "Florian Schulz", 
-  "compatibleVersion": 3,
+  "compatibleVersion": 4,
+  "homepage": "https://github.com/getflourish/Sketch-Color-Contrast-Analyser",
   "commands" : [
   {
     "script" : "analyscolor.cocoascript",
