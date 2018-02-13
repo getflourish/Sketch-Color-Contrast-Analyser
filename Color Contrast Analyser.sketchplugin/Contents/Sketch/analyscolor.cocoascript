@@ -144,6 +144,12 @@ function getColorContrastOf(color1, color2) {
 	return cr;
 }
 
+function convertWcagPointsToNsFontPoints(points) {
+	// WCAG uses CSS points at 96 ppi, 1pt = ~1.3334px
+	// Sketch uses NSFont points at 72 ppi, 1pt = 1px
+	return (points * 96) / 72;
+}
+
 function showResult (cr) {
 	// Check against AA / AAA
 	var result = "❌ AA Failed";
@@ -158,10 +164,14 @@ function showResult (cr) {
 			var isBold = true;
 		}
 	}
-	if ((fontSize >= 18 || (fontSize >= 14 && isBold)) && cr >=3) result = "✅ AA passed (large text)"
+
+	var largeTextRegular = convertWcagPointsToNsFontPoints(18);
+	var largeTextBold = convertWcagPointsToNsFontPoints(14);
+
+	if ((fontSize >= largeTextRegular || (isBold && fontSize >= largeTextBold)) && cr >=3) result = "✅ AA passed (large text)"
 	if(cr >= 4.5) result = "✅ AA passed"
 
-	if ((fontSize >= 18 || (fontSize >= 14 && isBold)) && cr >=4.5) result = "✅ AAA passed (large text)"
+	if ((fontSize >= largeTextRegular || (isBold && fontSize >= largeTextBold)) && cr >=4.5) result = "✅ AAA passed (large text)"
 	if(cr >= 7.0) result = "✅ AAA passed"
 
 	// Floor decimals after first one while avoiding JS floating point errors.
