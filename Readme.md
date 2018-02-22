@@ -11,7 +11,7 @@ Color contrast of **4.5:1** or **3.0:1 for large text**
 Color contrast of **7.0:1** or **4.5:1 for large text**.
 
 ## A note on "large" text
-The WCAG specification of font size is given in CSS points. Those are not equal to the point size in Sketch. Text in Sketch is smaller than its CSS equivalent.
+The WCAG specification of font size is given in CSS points. Those are not equal to the point size in Sketch. Text in Sketch is smaller than its CSS equivalent. Thus, the font size thresholds from the WCAG specification are converted to provide correct results in Sketch. 
 
 Illustration:
 https://codepen.io/getflourish/pen/oEyZRy
