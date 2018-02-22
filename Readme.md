@@ -10,11 +10,17 @@ Color contrast of **4.5:1** or **3.0:1 for large text**
 ### AAA requirements
 Color contrast of **7.0:1** or **4.5:1 for large text**.
 
+## A note on "large" text
+The WCAG specification of font size is given in CSS points. Those are not equal to the point size in Sketch. Text in Sketch is smaller than its CSS equivalent.
+
+https://codepen.io/getflourish/pen/oEyZRy
+
+Details in Note 1: https://www.w3.org/TR/UNDERSTANDING-WCAG20/visual-audio-contrast-contrast.html
+
 ## Notes
-- **Large text** means a font size of at least 18pt regular or 14pt bold. [Further details can be found in the Web Content Accessibility Guidelines 2.0.](http://www.w3.org/WAI/WCAG20/quickref/#qr-visual-audio-contrast-contrast)
-- This plugin works with solid text and fill colors. Transparency is not supported yet. 
+- **Large text** means a font size of at least 24pt (18pt in CSS) regular or 18,66pt bold (14pt in CSS).  [Further details can be found in the Web Content Accessibility Guidelines 2.0.](http://www.w3.org/WAI/WCAG20/quickref/#qr-visual-audio-contrast-contrast)
+- This plugin works with solid text and fill colors. Transparency is not supported yet. Version with transparency support can be found here: https://github.com/auxdesigner/Sketch-Color-Contrast-Analyser
 - Calculations are based on [these color contrast algorithms.](http://gmazzocato.altervista.org/colorwheel/algo.php)
 
 ## Credits
-Made by Florian Schulz ([@getflourish](https://twitter.com/getflourish) on Twitter)
-Fun fact: This is the first Sketch plugin I made in 2014. Still up and running!
+Made by Florian Schulz ([@getflourish](https://twitter.com/getflourish) on Twitter), 2014
