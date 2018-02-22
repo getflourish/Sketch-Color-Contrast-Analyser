@@ -13,9 +13,11 @@ Color contrast of **7.0:1** or **4.5:1 for large text**.
 ## A note on "large" text
 The WCAG specification of font size is given in CSS points. Those are not equal to the point size in Sketch. Text in Sketch is smaller than its CSS equivalent.
 
+Illustration:
 https://codepen.io/getflourish/pen/oEyZRy
 
-Details in Note 1: https://www.w3.org/TR/UNDERSTANDING-WCAG20/visual-audio-contrast-contrast.html
+Details in Note 1: 
+https://www.w3.org/TR/UNDERSTANDING-WCAG20/visual-audio-contrast-contrast.html
 
 ## Notes
 - **Large text** means a font size of at least 24pt (18pt in CSS) regular or 18,66pt bold (14pt in CSS).  [Further details can be found in the Web Content Accessibility Guidelines 2.0.](http://www.w3.org/WAI/WCAG20/quickref/#qr-visual-audio-contrast-contrast)
