@@ -2,10 +2,12 @@
 // Read more about the Web Content Accessibility Guidelines 2.0 
 // http://www.w3.org/WAI/WCAG20/quickref/#qr-visual-audio-contrast-contrast
 
-// Based on these algorithms: http://gmazzocato.altervista.org/colorwheel/algo.php
+// Based on these algorithms: 
+// • http://gmazzocato.altervista.org/colorwheel/algo.php
+// • https://en.wikipedia.org/wiki/Alpha_compositing#Alpha_blending This was originally integrated by Liu on a separate fork (https://github.com/auxdesigner/Sketch-Color-Contrast-Analyser) using this formula from Lea Verou (member of W3C working group): When a semi-transparent color that described by rgba(R₁, G₁, B₁, A₁) is overlaid on a solid color rgb(R₂, G₂, B₂), the resulting solid color of the alpha blending operation will be rgb(R₁A₁ + R₂(1-A₁), G₁A₁ + G₂(1-A₁), B₁A₁ + B₂(1-A₁)).
 // —————————————————————————————————————————
 
-// This plugin expects a selection of two layers or a single layer that will be checked against the artboard’s background color
+	// This plugin expects a selection of two layers or a single layer that will be checked against the artboard’s background color.
 
 
 // Reference to the text layer if there is any
@@ -25,17 +27,21 @@ var onRun = function(context) {
 			app.displayDialog_withTitle("Please select one or two layers.", "Color Contrast Analyser");
 		break;
 
+		// If only one layer is selected, check against the artboard background color. In this case, layer1 is the foreground layer.
 		case 1:
-			var layer1 = selection[0];
-			var color1 = getColorOf(layer1);
+			var layer2 = selection[0]; // Foreground
+			var color2 = getColorOf(layer2);
+			var o2 = layer2.style().contextSettings().opacity(); // Foreground layer opacity
 
 			// Get Artboard background color
 
 			if (page.currentArtboard() != null) {
 	
-				color2 = page.currentArtboard().backgroundColor();
+				color1 = page.currentArtboard().backgroundColor();
 
-				var cr = getColorContrastOf(color1, color2);
+				var a1 = color1.alpha(); // Artboard alpha
+				var a2 = color2.alpha() * o2; // Foreground alpha
+				var cr = getColorContrastOf(color1, color2, a1, a2);
 				showResult(cr);
 			} else {
 				app.displayDialog_withTitle("This plugin requires a single layer on an artboard or two selected layers to work.", "Color Contrast Analyser");
@@ -43,14 +49,22 @@ var onRun = function(context) {
 
 		break;
 
+		// In this case, layer1 is the background layer
 		case 2:
-			var layer1 = selection[0];
-			var layer2 = selection[1];
+			var layer1 = selection[0]; // Background
+			var layer2 = selection[1]; // Foreground
 
 			var color1 = getColorOf(layer1);
 			var color2 = getColorOf(layer2);
+			
+			var o1 = layer1.style().contextSettings().opacity();
+			var o2 = layer2.style().contextSettings().opacity();
+			
+			// Get the alpha value by multiplying the text alpha by the layer alpha
+			var a1 = color1.alpha() * o1;
+			var a2 = color2.alpha() * o2;
 
-			var cr = getColorContrastOf(color1, color2);
+			var cr = getColorContrastOf(color1, color2, a1, a2);
 
 			showResult(cr);
 		break;
@@ -78,9 +92,28 @@ var onRun = function(context) {
 	}
 }
 
-function getColorContrastOf(color1, color2) {
+function getColorContrastOf(color1, color2, a1, a2) {
 
-	// Color 1
+	// Get the actual RGB values without the alpha components
+	V1R = color1.red() * 255;  
+	V1G = color1.green() * 255;
+	V1B = color1.blue() * 255;
+
+	V2R = color2.red() * 255;  
+	V2G = color2.green() * 255;
+	V2B = color2.blue() * 255;
+	
+	// Use this formula to calculate the actual RGB values with the alpha components:
+	// rgb(R₁A₁ + R₂(1-A₁), G₁A₁ + G₂(1-A₁), B₁A₁ + B₂(1-A₁))
+	V3R = (V2R * a2 + V1R * (1 - a2)).toFixed(0);
+	V3G = (V2G * a2 + V1G * (1 - a2)).toFixed(0);
+	V3B = (V2B * a2 + V1B * (1 - a2)).toFixed(0);
+
+	V4R = (V1R * a1 + V2R * (1 - a1)).toFixed(0);
+	V4G = (V1G * a1 + V2G * (1 - a1)).toFixed(0);
+	V4B = (V1B * a1 + V2B * (1 - a1)).toFixed(0);
+
+	// Color 1 without alph
 
 	L1R = color1.red();
 	if (L1R <= 0.03928) {
@@ -125,21 +158,69 @@ function getColorContrastOf(color1, color2) {
 	} else {
 		L2B = Math.pow(((L2B + 0.055)/1.055), 2.4)
 	}
+	
+	// Color 3
+	
+	L3R = V3R / 255;
+	if (L3R <= 0.03928) {
+		L3R = V3R / 255 / 12.92;
+	} else {
+		L3R = Math.pow(((V3R / 255 + 0.055)/1.055), 2.4)
+	}
 
-	var L1 = 0.2126 * L1R + 0.7152 * L1G + 0.0722 * L1B;
-	var L2 = 0.2126 * L2R + 0.7152 * L2G + 0.0722 * L2B;
+	L3G = V3G / 255;
+	if (L3G <= 0.03928) {
+		L3G = V3G / 255 / 12.92;
+	} else {
+		L3G = Math.pow(((V3G / 255 + 0.055)/1.055), 2.4)
+	}
+
+	L3B = V3B / 255;
+	if (L3B <= 0.03928) {
+		L3B = V3B / 255 / 12.92;
+	} else {
+		L3B = Math.pow(((V3B / 255 + 0.055)/1.055), 2.4)
+	}
+
+	// Color 4
+
+	L4R = V4R / 255;
+	if (L4R <= 0.03928) {
+		L4R = V4R / 255 / 12.92;
+	} else {
+		L4R = Math.pow(((V4R / 255 + 0.055)/1.055), 2.4)
+	}
+
+	L4G = V4G / 255;
+	if (L4G <= 0.03928) {
+		L4G = V4G / 255 / 12.92;
+	} else {
+		L4G = Math.pow(((V4G / 255 + 0.055)/1.055), 2.4)
+	}
+
+	L4B = V4B / 255;
+	if (L4B <= 0.03928) {
+		L4B = V4B / 255 / 12.92;
+	} else {
+		L4B = Math.pow(((V4B / 255 + 0.055)/1.055), 2.4)
+	}
+
+	var L1 = 0.2126 * L1R + 0.7152 * L1G + 0.0722 * L1B; // Background color without alpha
+	var L2 = 0.2126 * L2R + 0.7152 * L2G + 0.0722 * L2B; // Foreground color without alpha
+	var L3 = 0.2126 * L3R + 0.7152 * L3G + 0.0722 * L3B; // Foreground color with alpha
+	var L4 = 0.2126 * L4R + 0.7152 * L4G + 0.0722 * L4B; // Background color with alpha
 
 	// Make sure L1 is the lighter color
 
-	if (L1 <= L2) {
-		var temp = L2;
-		L2 = L1;
-		L1 = temp;
+	if (L4 <= L3) {
+		var temp = L3;
+		L3 = L4;
+		L4 = temp;
 	}
 
 	// Calculate contrast
 
-	cr = (L1 + 0.05) / (L2 + 0.05);
+	cr = ((L4 + 0.05) / (L3 + 0.05)).toFixed(1);
 
 	return cr;
 }
