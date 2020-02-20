@@ -175,7 +175,7 @@ function showResult (cr) {
 	if(cr >= 7.0) result = "✅ AAA passed"
 
 	// Floor decimals after first one while avoiding JS floating point errors.
-	var floored = (cr.toString().match(/^-?\d+(?:\.\d{0,1})?/)[0]*1).toFixed(1)
+	var floored = (cr.toString().match(/^-?\d+(?:\.\d{0,1})?/)[0]*1).toFixed(2)
 
 	// Show ratio
 	doc.showMessage(result + " - " + floored + ":1");
