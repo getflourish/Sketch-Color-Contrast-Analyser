@@ -9,13 +9,13 @@
 
 
 // Reference to the text layer if there is any
-var textLayer = null; 
+var textLayer = null;
 var doc = null;
 
-var onRun = function(context) {  
+var onRun = function (context) {
 	doc = context.document;
-  	var selection = context.selection; 
-  	var page = doc.currentPage(); 
+	var selection = context.selection;
+	var page = doc.currentPage();
 
 	// Setup
 	var app = NSApplication.sharedApplication();
@@ -23,7 +23,7 @@ var onRun = function(context) {
 	switch (selection.count()) {
 		case 0:
 			app.displayDialog_withTitle("Please select one or two layers.", "Color Contrast Analyser");
-		break;
+			break;
 
 		case 1:
 			var layer1 = selection[0];
@@ -32,7 +32,7 @@ var onRun = function(context) {
 			// Get Artboard background color
 
 			if (page.currentArtboard() != null) {
-	
+
 				color2 = page.currentArtboard().backgroundColor();
 
 				var cr = getColorContrastOf(color1, color2);
@@ -41,7 +41,7 @@ var onRun = function(context) {
 				app.displayDialog_withTitle("This plugin requires a single layer on an artboard or two selected layers to work.", "Color Contrast Analyser");
 			}
 
-		break;
+			break;
 
 		case 2:
 			var layer1 = selection[0];
@@ -53,7 +53,7 @@ var onRun = function(context) {
 			var cr = getColorContrastOf(color1, color2);
 
 			showResult(cr);
-		break;
+			break;
 	}
 
 
@@ -61,18 +61,18 @@ var onRun = function(context) {
 		var color = null;
 		switch ([layer class]) {
 			case MSTextLayer:
-		    	color = layer.textColor();
+				color = layer.textColor();
 				textLayer = layer;
 
 				// Check if text layer has a fill color
 
 				var fill = layer.style().fills().firstObject();
 				if (fill != undefined && fill.isEnabled()) color = fill.color();
-			break;
-		  	default:
-		    	var fill = layer.style().fills().firstObject();
+				break;
+			default:
+				var fill = layer.style().fills().firstObject();
 				color = fill.color();
-		    break;
+				break;
 		}
 		return color;
 	}
@@ -86,21 +86,21 @@ function getColorContrastOf(color1, color2) {
 	if (L1R <= 0.03928) {
 		L1R = color1.red() / 12.92;
 	} else {
-		L1R = Math.pow(((L1R + 0.055)/1.055), 2.4)
+		L1R = Math.pow(((L1R + 0.055) / 1.055), 2.4)
 	}
 
 	L1G = color1.green();
 	if (L1G <= 0.03928) {
 		L1G = color1.green() / 12.92;
 	} else {
-		L1G = Math.pow(((L1G + 0.055)/1.055), 2.4)
+		L1G = Math.pow(((L1G + 0.055) / 1.055), 2.4)
 	}
 
 	L1B = color1.blue();
 	if (L1B <= 0.03928) {
 		L1B = color1.blue() / 12.92;
 	} else {
-		L1B = Math.pow(((L1B + 0.055)/1.055), 2.4)
+		L1B = Math.pow(((L1B + 0.055) / 1.055), 2.4)
 	}
 
 	// Color 2
@@ -109,21 +109,21 @@ function getColorContrastOf(color1, color2) {
 	if (L2R <= 0.03928) {
 		L2R = color2.red() / 12.92;
 	} else {
-		L2R = Math.pow(((L2R + 0.055)/1.055), 2.4)
+		L2R = Math.pow(((L2R + 0.055) / 1.055), 2.4)
 	}
 
 	L2G = color2.green();
 	if (L2G <= 0.03928) {
 		L2G = color2.green() / 12.92;
 	} else {
-		L2G = Math.pow(((L2G + 0.055)/1.055), 2.4)
+		L2G = Math.pow(((L2G + 0.055) / 1.055), 2.4)
 	}
 
 	L2B = color2.blue();
 	if (L2B <= 0.03928) {
 		L2B = color2.blue() / 12.92;
 	} else {
-		L2B = Math.pow(((L2B + 0.055)/1.055), 2.4)
+		L2B = Math.pow(((L2B + 0.055) / 1.055), 2.4)
 	}
 
 	var L1 = 0.2126 * L1R + 0.7152 * L1G + 0.0722 * L1B;
@@ -150,7 +150,7 @@ function convertWcagPointsToNsFontPoints(points) {
 	return (points * 96) / 72;
 }
 
-function showResult (cr) {
+function showResult(cr) {
 	// Check against AA / AAA
 	var result = "❌ AA Failed";
 
@@ -168,14 +168,15 @@ function showResult (cr) {
 	var largeTextRegular = convertWcagPointsToNsFontPoints(18);
 	var largeTextBold = convertWcagPointsToNsFontPoints(14);
 
-	if ((fontSize >= largeTextRegular || (isBold && fontSize >= largeTextBold)) && cr >=3) result = "✅ AA passed (large text)"
-	if(cr >= 4.5) result = "✅ AA passed"
+	if ((fontSize >= largeTextRegular || (isBold && fontSize >= largeTextBold)) && cr >= 3) result = "✅ AA passed (large text)"
+	if (cr >= 4.5) result = "✅ AA passed"
 
-	if ((fontSize >= largeTextRegular || (isBold && fontSize >= largeTextBold)) && cr >=4.5) result = "✅ AAA passed (large text)"
-	if(cr >= 7.0) result = "✅ AAA passed"
+	if ((fontSize >= largeTextRegular || (isBold && fontSize >= largeTextBold)) && cr >= 4.5) result = "✅ AAA passed (large text)"
+	if (cr >= 7.0) result = "✅ AAA passed"
 
 	// Floor decimals after first one while avoiding JS floating point errors.
-	var floored = (cr.toString().match(/^-?\d+(?:\.\d{0,1})?/)[0]*1).toFixed(2)
+	// 1.39999 will be returned as 1.39 instead of rounding to 1.40
+	var floored = (cr.toString().match(/^-?\d+(?:\.\d{0,2})?/)[0] * 1).toFixed(2)
 
 	// Show ratio
 	doc.showMessage(result + " - " + floored + ":1");

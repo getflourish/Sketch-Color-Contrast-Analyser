@@ -10,6 +10,9 @@ Color contrast of **4.5:1** or **3.0:1 for large text**
 ### AAA requirements
 Color contrast of **7.0:1** or **4.5:1 for large text**.
 
+### A note on rounding (as of 21 Feb 2020)
+The displayed values are not rounded, but limited to display two decimals. For example, a calculated contrast ratio of `1.39999` will be returned as `1.39` and won’t be rounded to `1.40`. This avoids false positives. 
+
 ## A note on "large" text
 The WCAG specification of font size is given in CSS points. Those are not equal to the point size in Sketch. Text in Sketch is smaller than its CSS equivalent. Thus, the font size thresholds from the WCAG specification are converted to provide correct results in Sketch. 
 
